@@ -10,6 +10,9 @@ interface RawItem {
 }
 
 async function fetchPage(cid: string, intervalMs: number): Promise<RawItem[]> {
+  if (!cid) {
+    throw new Error('walkFolder: cid 为空，无法获取目录')
+  }
   /** 字段对齐 drive115 wrap.ts 中 getPlaylist 的参数，只改 show_dir 为 1 以拿到子目录 */
   const params = {
     aid: 1,

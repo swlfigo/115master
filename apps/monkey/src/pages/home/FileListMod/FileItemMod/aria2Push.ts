@@ -158,10 +158,16 @@ export class FileItemModAria2Push extends FileItemModBase {
   private async handlePush(rpc: Aria2RpcPreset) {
     const attrs = this.itemInfo.attributes
     if (this.isFolder) {
+      /** 文件夹的「自身 id」在 115 DOM 里是 cate_id；cid 是所在的父目录 */
+      const folderCid = attrs.cate_id || attrs.cid
+      if (!folderCid) {
+        toast.error('无法获取文件夹 ID')
+        return
+      }
       const handle = toast.loading(`正在获取文件列表... 0`)
       try {
         const result = await pushFolder({
-          cid: attrs.cid,
+          cid: folderCid,
           rootPath: attrs.title,
           rpc,
           onListProgress: walked => handle.update(`正在获取文件列表... ${walked}`),
