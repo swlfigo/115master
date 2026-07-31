@@ -79,6 +79,9 @@ export class FileItemModAria2Push extends FileItemModBase {
   }
 
   private buildSingleButton(preset: Aria2RpcPreset): HTMLElement {
+    const wrap = document.createElement('span')
+    wrap.style.cssText = 'display:inline-flex;align-items:center;'
+
     const a = document.createElement('a')
     a.href = 'javascript:void(0)'
     a.textContent = `⇩ ${preset.name}`
@@ -88,6 +91,29 @@ export class FileItemModAria2Push extends FileItemModBase {
       e.preventDefault()
       e.stopImmediatePropagation()
       await this.handlePush(preset)
+    })
+
+    wrap.appendChild(a)
+    wrap.appendChild(this.buildSettingsLink('padding:2px 4px;font-size:12px;color:#888;'))
+    return wrap
+  }
+
+  /** 打开 Aria2 设置的入口，各状态复用 */
+  private buildSettingsLink(
+    cssText: string,
+    label = '⚙',
+    beforeOpen?: () => void,
+  ): HTMLElement {
+    const a = document.createElement('a')
+    a.href = 'javascript:void(0)'
+    a.textContent = label
+    a.title = 'Aria2 导出设置'
+    a.style.cssText = cssText
+    a.addEventListener('mousedown', (e) => {
+      e.preventDefault()
+      e.stopImmediatePropagation()
+      beforeOpen?.()
+      aria2Events.emit('aria2:open-settings')
     })
     return a
   }
@@ -130,17 +156,13 @@ export class FileItemModAria2Push extends FileItemModBase {
     divider.style.cssText = 'border-top:1px solid #eee;margin:4px 0;'
     menu.appendChild(divider)
 
-    const settingsItem = document.createElement('a')
-    settingsItem.href = 'javascript:void(0)'
-    settingsItem.textContent = '⚙ 设置'
-    settingsItem.style.cssText
-      = 'display:block;padding:6px 12px;font-size:12px;color:#666;text-decoration:none;'
-    settingsItem.addEventListener('mousedown', (e) => {
-      e.preventDefault()
-      e.stopImmediatePropagation()
-      menu.style.display = 'none'
-      aria2Events.emit('aria2:open-settings')
-    })
+    const settingsItem = this.buildSettingsLink(
+      'display:block;padding:6px 12px;font-size:12px;color:#666;text-decoration:none;',
+      '⚙ 设置',
+      () => {
+        menu.style.display = 'none'
+      },
+    )
     menu.appendChild(settingsItem)
 
     wrap.addEventListener('mouseenter', () => {

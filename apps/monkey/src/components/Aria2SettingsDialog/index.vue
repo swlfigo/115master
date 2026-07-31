@@ -1,7 +1,7 @@
 <template>
   <dialog ref="dialogRef" class="modal">
     <div class="modal-box w-11/12 max-w-3xl">
-      <h3 class="font-bold text-lg mb-4">
+      <h3 class="mb-4 text-lg font-bold">
         Aria2 导出设置
       </h3>
 
@@ -51,7 +51,7 @@
         </label>
         <input
           v-model="form.userAgent"
-          class="input input-bordered w-full mt-2"
+          class="input input-bordered mt-2 w-full"
           :disabled="form.useBrowserUA"
           placeholder="自定义 User-Agent"
         >
@@ -66,7 +66,7 @@
         <label class="label">自定义 Headers（每行 Key: Value）</label>
         <textarea
           v-model="form.extraHeaders"
-          class="textarea textarea-bordered w-full h-24"
+          class="textarea textarea-bordered h-24 w-full"
         />
       </div>
 
