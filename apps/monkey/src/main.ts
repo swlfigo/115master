@@ -4,6 +4,7 @@ import globToRegex from 'glob-to-regexp'
 import ROUTE_MATCH from './constants/route.match'
 import HomePage from './pages/home/index'
 import { magnetPage, registerMagnetProtocolHandler } from './pages/magnet'
+import StoragePage from './pages/storage/index'
 import { videoPage, videoTokenPage } from './pages/video'
 import { checkUserAgent } from './utils/checkUserAgent'
 import { debugInfo } from './utils/debugInfo'
@@ -33,10 +34,15 @@ registerMagnetProtocolHandler()
 
 /** 路由匹配 */
 const routeMatch = [
-  /** 首页 */
+  /** 旧版首页 */
   {
     match: ROUTE_MATCH.HOME,
     exec: () => new HomePage(),
+  },
+  /** 新版网盘 */
+  {
+    match: ROUTE_MATCH.STORAGE,
+    exec: () => new StoragePage(),
   },
   /** 视频页 */
   {
@@ -55,8 +61,23 @@ const routeMatch = [
   },
 ]
 
+/**
+ * 防止重复初始化的标记
+ *
+ * 实测新版页面上脚本会被执行两次（两条「启动成功」日志，耗时不同），
+ * 不拦住的话每个 Mod 都会挂两遍，按钮、浮层全部重复。
+ * 标记打在 documentElement 上而不是模块变量里：
+ * 两次执行是相互独立的模块实例，模块级变量各算各的，拦不住。
+ */
+const BOOTSTRAPPED_FLAG = 'master115Bootstrapped'
+
 /** 主函数 */
 function main() {
+  if (document.documentElement.dataset[BOOTSTRAPPED_FLAG]) {
+    return
+  }
+  document.documentElement.dataset[BOOTSTRAPPED_FLAG] = '1'
+
   for (const route of routeMatch) {
     if (globToRegex(route.match).test(window.location.href)) {
       route.exec()

@@ -29,6 +29,22 @@ export default defineConfig({
   },
   build: {
     minify: true,
+    rollupOptions: {
+      output: {
+        /**
+         * 强制打成单个 chunk
+         *
+         * 代码里存在动态 import（photoswipe、播放器页），分包后
+         * vite-plugin-monkey 会改用 SystemJS 运行时按需加载子 chunk。
+         * SystemJS 依赖 document.currentScript 推断基地址，而新版 115 是
+         * Next.js 页面，用户脚本执行时 currentScript 常指向 Next 自己的
+         * chunk，于是入口被解析成 https://115.com/_next/static/chunks/app/
+         * __monkey.entry-*.js 并 404，整个脚本在启动阶段就挂掉。
+         * 单 chunk 后不再有运行时加载，也就不存在基地址推断问题。
+         */
+        inlineDynamicImports: true,
+      },
+    },
   },
   optimizeDeps: {
     exclude: ['@libmedia/avplayer'],
@@ -72,6 +88,7 @@ export default defineConfig({
         'run-at': 'document-start',
         'include': [
           'https://115.com/?ct*',
+          'https://115.com/storage/*',
           'https://115.com/web/lixian/master/video/*',
           'https://115.com/web/lixian/master/magnet/*',
           'https://115.com/?aid*',
